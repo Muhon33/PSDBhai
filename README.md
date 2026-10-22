@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="res/readme/banner.svg" alt="PSDBhai: see inside your Photoshop files, right in File Explorer" width="100%">
+  <img src="res/readme/banner.svg" alt="PSDGlance: see inside your Photoshop files, right in File Explorer" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/Muhon33/Download-PSDBhai/releases/latest"><img src="https://img.shields.io/github/v/release/Muhon33/Download-PSDBhai?style=for-the-badge&label=version&color=2563EB" alt="Latest version"></a>
-  <a href="https://github.com/Muhon33/Download-PSDBhai/releases"><img src="https://img.shields.io/github/downloads/Muhon33/Download-PSDBhai/total?style=for-the-badge&label=downloads&color=7C3AED" alt="Downloads"></a>
+  <a href="https://github.com/Muhon33/Download-PSDGlance/releases/latest"><img src="https://img.shields.io/github/v/release/Muhon33/Download-PSDGlance?style=for-the-badge&label=version&color=2563EB" alt="Latest version"></a>
+  <a href="https://github.com/Muhon33/Download-PSDGlance/releases"><img src="https://img.shields.io/github/downloads/Muhon33/Download-PSDGlance/total?style=for-the-badge&label=downloads&color=7C3AED" alt="Downloads"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10 and 11">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22C55E?style=for-the-badge" alt="MIT license"></a>
 </p>
@@ -12,13 +12,13 @@
 <h3 align="center">Stop opening Photoshop just to see what's inside a PSD.</h3>
 
 <p align="center">
-  PSDBhai shows the real picture of every <b>.psd</b> and <b>.psb</b> file in Windows File Explorer,<br>
+  PSDGlance shows the real picture of every <b>.psd</b> and <b>.psb</b> file in Windows File Explorer,<br>
   and in every app's Open and Save windows, just like a Mac does.
 </p>
 
 <p align="center">
-  <a href="https://github.com/Muhon33/Download-PSDBhai/releases/latest/download/PSDBhai-Setup.exe">
-    <img src="res/readme/download-button.svg" alt="Download PSDBhai for Windows" width="380">
+  <a href="https://github.com/Muhon33/Download-PSDGlance/releases/latest/download/PSDGlance-Setup.exe">
+    <img src="res/readme/download-button.svg" alt="Download PSDGlance for Windows" width="380">
   </a>
 </p>
 
@@ -29,7 +29,7 @@
 <br>
 
 <p align="center">
-  <img src="res/readme/before-after.svg" alt="Before: every PSD shows the same icon. After PSDBhai: every PSD shows its real picture." width="100%">
+  <img src="res/readme/before-after.svg" alt="Before: every PSD shows the same icon. After PSDGlance: every PSD shows its real picture." width="100%">
 </p>
 
 ## ✨ Why you'll like it
@@ -46,21 +46,21 @@
 
 ## 📥 Install in 3 clicks
 
-1. **Download** [PSDBhai-Setup.exe](https://github.com/Muhon33/Download-PSDBhai/releases/latest/download/PSDBhai-Setup.exe).
+1. **Download** [PSDGlance-Setup.exe](https://github.com/Muhon33/Download-PSDGlance/releases/latest/download/PSDGlance-Setup.exe).
 2. **Double-click** it, tick **I accept the agreement**, then click **Install**.
 3. Click **Finish**, open any folder with PSD files, and switch the view to **Large icons**.
 
 No admin password needed.
 
 > [!NOTE]
-> **Seeing a warning?** PSDBhai is new, so Windows doesn't recognize it yet. Your browser may say the file *"isn't commonly downloaded"*: choose **Keep**. Windows may then show **"Windows protected your PC"**: click **More info**, then **Run anyway**. Microsoft Defender scans it as clean. Code signing is on the way to remove these warnings ([code signing policy](#-code-signing-policy)).
+> **Seeing a warning?** PSDGlance is new, so Windows doesn't recognize it yet. Your browser may say the file *"isn't commonly downloaded"*: choose **Keep**. Windows may then show **"Windows protected your PC"**: click **More info**, then **Run anyway**. Microsoft Defender scans it as clean. Code signing is on the way to remove these warnings ([code signing policy](#-code-signing-policy)).
 
 > [!TIP]
-> Files you browsed before installing still show the old icon? Open **PSDBhai** from the Start menu and click **Refresh thumbnails**.
+> Files you browsed before installing still show the old icon? Open **PSDGlance** from the Start menu and click **Refresh thumbnails**.
 
 ## ⚙️ Settings
 
-Open **PSDBhai** from the Start menu:
+Open **PSDGlance** from the Start menu:
 
 | Option | What it does |
 | :--- | :--- |
@@ -71,15 +71,15 @@ Open **PSDBhai** from the Start menu:
 
 ## 🗑️ Uninstall
 
-**Settings** › **Apps** › **Installed apps** › **PSDBhai** › **Uninstall**. Everything is removed, and Windows goes back to how it was.
+**Settings** › **Apps** › **Installed apps** › **PSDGlance** › **Uninstall**. Everything is removed, and Windows goes back to how it was.
 
 <details>
 <summary><b>For IT admins</b></summary>
 <br>
 
-- Install for all users (needs admin): `PSDBhai-Setup.exe /ALLUSERS`
+- Install for all users (needs admin): `PSDGlance-Setup.exe /ALLUSERS`
 - Silent install: add `/VERYSILENT`
-- Every version is listed on the [Releases page](https://github.com/Muhon33/Download-PSDBhai/releases).
+- Every version is listed on the [Releases page](https://github.com/Muhon33/Download-PSDGlance/releases).
 
 </details>
 
@@ -87,7 +87,7 @@ Open **PSDBhai** from the Start menu:
 <summary><b>For developers</b></summary>
 <br>
 
-PSDBhai is a small native C++ Windows Shell thumbnail handler with no dependencies. Building, testing, the design and the release process are covered in the [developer guide](docs/development.md).
+PSDGlance is a small native C++ Windows Shell thumbnail handler with no dependencies. Building, testing, the design and the release process are covered in the [developer guide](docs/development.md).
 
 </details>
 
@@ -102,14 +102,14 @@ Release builds are produced only by the [GitHub Actions workflow](.github/workfl
 
 ## 🔒 Privacy policy
 
-This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. PSDBhai makes no network connections at all; it only reads the PSD and PSB files Windows asks it to show.
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. PSDGlance makes no network connections at all; it only reads the PSD and PSB files Windows asks it to show.
 
 ## 📄 License
 
 [MIT](LICENSE). Third-party notices are in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
 
-<sub>Photoshop is a registered trademark of Adobe Inc. PSDBhai is an independent project, not affiliated with or endorsed by Adobe.</sub>
+<sub>Photoshop is a registered trademark of Adobe Inc. PSDGlance is an independent project, not affiliated with or endorsed by Adobe.</sub>
 
 <p align="center">
-  <sub>Made with ❤️ by <a href="https://github.com/Muhon33">Muhon33</a> · If PSDBhai saves you time, give it a ⭐</sub>
+  <sub>Made with ❤️ by <a href="https://github.com/Muhon33">Muhon33</a> · If PSDGlance saves you time, give it a ⭐</sub>
 </p>

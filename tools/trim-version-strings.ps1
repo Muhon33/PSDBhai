@@ -1,5 +1,5 @@
 # Inno Setup writes the installer's version strings into fixed-width,
-# space-padded slots ("PSDBhai" + 52 spaces). SignPath matches product name
+# space-padded slots ("PSDGlance" + 52 spaces). SignPath matches product name
 # and version exactly, so trailing spaces make signing fail. This trims them
 # in place: each value is NUL-filled to its old width and only its
 # wValueLength changes, so no byte moves (Inno's loader relies on fixed file

@@ -1,10 +1,10 @@
-// psdbhai-cli.exe: developer tool for PSDBhai.
+// psdglance-cli.exe: developer tool for PSDGlance.
 //
-//   psdbhai-cli info   <file.psd>
-//   psdbhai-cli render <file.psd> <out.png> [--size N] [--source auto|jpeg|composite] [--fast]
-//   psdbhai-cli dll    <PSDBhai.dll> <file.psd> <out.png> [--size N]   (calls the DLL without registering it)
-//   psdbhai-cli shell  <file.psd> <out.png> [--size N]                   (asks Explorer's thumbnail pipeline)
-//   psdbhai-cli bench  <file-or-folder> [--size N]
+//   psdglance-cli info   <file.psd>
+//   psdglance-cli render <file.psd> <out.png> [--size N] [--source auto|jpeg|composite] [--fast]
+//   psdglance-cli dll    <PSDGlance.dll> <file.psd> <out.png> [--size N]   (calls the DLL without registering it)
+//   psdglance-cli shell  <file.psd> <out.png> [--size N]                   (asks Explorer's thumbnail pipeline)
+//   psdglance-cli bench  <file-or-folder> [--size N]
 
 #include <windows.h>
 #include <objbase.h>
@@ -23,7 +23,7 @@
 #include "../win/sources.h"
 #include "../win/thumbnailer.h"
 
-using namespace psdbhai;
+using namespace psdglance;
 
 namespace {
 
@@ -293,12 +293,12 @@ int CmdBench(int argc, wchar_t** argv) {
 
 void Usage() {
     std::printf(
-        "psdbhai-cli - PSDBhai developer tool\n\n"
-        "  psdbhai-cli info   <file.psd>\n"
-        "  psdbhai-cli render <file.psd> <out.png> [--size N] [--source auto|jpeg|composite] [--fast]\n"
-        "  psdbhai-cli dll    <PSDBhai.dll> <file.psd> <out.png> [--size N]\n"
-        "  psdbhai-cli shell  <file.psd> <out.png> [--size N]\n"
-        "  psdbhai-cli bench  <file-or-folder> [--size N]\n");
+        "psdglance-cli - PSDGlance developer tool\n\n"
+        "  psdglance-cli info   <file.psd>\n"
+        "  psdglance-cli render <file.psd> <out.png> [--size N] [--source auto|jpeg|composite] [--fast]\n"
+        "  psdglance-cli dll    <PSDGlance.dll> <file.psd> <out.png> [--size N]\n"
+        "  psdglance-cli shell  <file.psd> <out.png> [--size N]\n"
+        "  psdglance-cli bench  <file-or-folder> [--size N]\n");
 }
 
 }  // namespace

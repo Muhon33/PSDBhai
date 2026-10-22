@@ -8,7 +8,7 @@
 #include "../core/psd.h"
 #include "config.h"
 
-namespace psdbhai {
+namespace psdglance {
 
 enum class ThumbPath { None, EmbeddedJpeg, Composite, UpscaledJpeg };
 const char* ThumbPathName(ThumbPath path);
@@ -42,4 +42,4 @@ HRESULT DecodeJpeg(const uint8_t* data, size_t size, uint32_t maxSide, bool allo
 // 32-bit top-down DIB section, as IThumbnailProvider::GetThumbnail returns.
 HRESULT ImageToHBitmap(const psd::Image& image, HBITMAP* out);
 
-}  // namespace psdbhai
+}  // namespace psdglance

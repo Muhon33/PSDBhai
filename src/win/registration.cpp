@@ -7,7 +7,7 @@
 
 #include "config.h"
 
-namespace psdbhai {
+namespace psdglance {
 
 namespace {
 
@@ -23,7 +23,7 @@ void HandlerKeyPath(const wchar_t* ext, wchar_t* out, size_t cch) {
     StringCchPrintfW(out, cch, L"Software\\Classes\\%s\\ShellEx\\%s", ext, kThumbnailHandlerKey);
 }
 
-// Value under Software\PSDBhai remembering a handler we replaced.
+// Value under Software\PSDGlance remembering a handler we replaced.
 void BackupValueName(const wchar_t* ext, wchar_t* out, size_t cch) {
     StringCchPrintfW(out, cch, L"PreviousHandler%s", ext);
 }
@@ -168,4 +168,4 @@ LSTATUS Unregister(Scope scope) {
 
 void NotifyShell() { SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr); }
 
-}  // namespace psdbhai
+}  // namespace psdglance

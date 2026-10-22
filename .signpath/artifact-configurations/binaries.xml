@@ -6,11 +6,11 @@
     <parameter name="version" required="true" />
   </parameters>
   <zip-file>
-    <pe-file-set product-name="PSDBhai" product-version="${version}">
-      <include path="x64/PSDBhai.dll" />
-      <include path="x64/PSDBhai.exe" />
-      <include path="arm64/PSDBhai.dll" />
-      <include path="arm64/PSDBhai.exe" />
+    <pe-file-set product-name="PSDGlance" product-version="${version}">
+      <include path="x64/PSDGlance.dll" />
+      <include path="x64/PSDGlance.exe" />
+      <include path="arm64/PSDGlance.dll" />
+      <include path="arm64/PSDGlance.exe" />
       <for-each>
         <authenticode-sign />
       </for-each>

@@ -65,10 +65,10 @@ jobs:
         with:
           name: program-files-unsigned
           path: |
-            bin/x64/PSDBhai.dll
-            bin/x64/PSDBhai.exe
-            bin/arm64/PSDBhai.dll
-            bin/arm64/PSDBhai.exe
+            bin/x64/PSDGlance.dll
+            bin/x64/PSDGlance.exe
+            bin/arm64/PSDGlance.dll
+            bin/arm64/PSDGlance.exe
 
       - name: Sign program files (SignPath)
         if: steps.upload-binaries.outcome == 'success'
@@ -76,7 +76,7 @@ jobs:
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdbhai' }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdglance' }}
           signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
           artifact-configuration-slug: binaries
           github-artifact-id: ${{ steps.upload-binaries.outputs.artifact-id }}
@@ -96,8 +96,8 @@ jobs:
         id: upload-installer
         uses: actions/upload-artifact@v7
         with:
-          name: PSDBhai-Setup-${{ env.VERSION }}${{ steps.upload-binaries.outcome == 'success' && '-unsigned' || '' }}
-          path: dist/PSDBhai-Setup-${{ env.VERSION }}.exe
+          name: PSDGlance-Setup-${{ env.VERSION }}${{ steps.upload-binaries.outcome == 'success' && '-unsigned' || '' }}
+          path: dist/PSDGlance-Setup-${{ env.VERSION }}.exe
 
       - name: Sign installer (SignPath)
         if: steps.upload-binaries.outcome == 'success'
@@ -105,7 +105,7 @@ jobs:
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdbhai' }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdglance' }}
           signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
           artifact-configuration-slug: installer
           github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
@@ -119,8 +119,8 @@ jobs:
         if: steps.upload-binaries.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
-          name: PSDBhai-Setup-${{ env.VERSION }}
-          path: dist-signed/PSDBhai-Setup-${{ env.VERSION }}.exe
+          name: PSDGlance-Setup-${{ env.VERSION }}
+          path: dist-signed/PSDGlance-Setup-${{ env.VERSION }}.exe
 
       # ---- Release ----
 
@@ -131,19 +131,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $signed = Test-Path dist-signed
-          $setup = if ($signed) { "dist-signed\PSDBhai-Setup-$env:VERSION.exe" } else { "dist\PSDBhai-Setup-$env:VERSION.exe" }
+          $setup = if ($signed) { "dist-signed\PSDGlance-Setup-$env:VERSION.exe" } else { "dist\PSDGlance-Setup-$env:VERSION.exe" }
           $policy = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY#code-signing-policy"
           $signing = if ($signed) { "Free code signing provided by SignPath.io, certificate by SignPath Foundation." } else { "This build is not code-signed." }
           $notes = @"
           Shows thumbnails for Photoshop PSD and PSB files in Windows File Explorer.
 
-          **Install:** download PSDBhai-Setup-$env:VERSION.exe below, double-click it, accept the license, click Install. No admin password needed. Windows 10 and 11, Intel/AMD and ARM PCs.
+          **Install:** download PSDGlance-Setup-$env:VERSION.exe below, double-click it, accept the license, click Install. No admin password needed. Windows 10 and 11, Intel/AMD and ARM PCs.
 
-          **Uninstall:** Settings > Apps > Installed apps > PSDBhai > Uninstall.
+          **Uninstall:** Settings > Apps > Installed apps > PSDGlance > Uninstall.
 
           $signing [Code signing policy]($policy)
           "@
           # Also attach a copy with a fixed name, so this link always gets the newest version:
-          # https://github.com/<owner>/<repo>/releases/latest/download/PSDBhai-Setup.exe
-          Copy-Item $setup "$env:RUNNER_TEMP\PSDBhai-Setup.exe"
-          gh release create $env:GITHUB_REF_NAME $setup "$env:RUNNER_TEMP\PSDBhai-Setup.exe" --title "PSDBhai $env:VERSION" --notes $notes
+          # https://github.com/<owner>/<repo>/releases/latest/download/PSDGlance-Setup.exe
+          Copy-Item $setup "$env:RUNNER_TEMP\PSDGlance-Setup.exe"
+          gh release create $env:GITHUB_REF_NAME $setup "$env:RUNNER_TEMP\PSDGlance-Setup.exe" --title "PSDGlance $env:VERSION" --notes $notes

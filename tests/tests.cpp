@@ -1,4 +1,4 @@
-// psdbhai_tests.exe: generates synthetic PSD/PSB files covering every color
+// psdglance_tests.exe: generates synthetic PSD/PSB files covering every color
 // mode, bit depth, compression and transparency case, decodes them and checks
 // pixels; then checks thumbnail source selection, the reader cache, inflate,
 // truncated files and a mutation fuzz loop.
@@ -551,16 +551,16 @@ void TestComposites() {
 
 void TestSourceSelection() {
     std::printf("thumbnail source selection\n");
-    using psdbhai::ThumbPath;
-    struct Case { const char* name; bool thumb, bgr, realMerged; uint32_t cx; psdbhai::Quality q; ThumbPath expect; uint32_t w; Rgb color; };
+    using psdglance::ThumbPath;
+    struct Case { const char* name; bool thumb, bgr, realMerged; uint32_t cx; psdglance::Quality q; ThumbPath expect; uint32_t w; Rgb color; };
     const Rgb red = {255, 0, 0};
     const Case cases[] = {
-        {"small icon uses embedded jpeg", true, false, true, 48, psdbhai::Quality::Sharp, ThumbPath::EmbeddedJpeg, 48, kOrange},
-        {"large icon uses composite", true, false, true, 256, psdbhai::Quality::Sharp, ThumbPath::Composite, 64, red},
-        {"no real composite falls back to upscaled jpeg", true, false, false, 256, psdbhai::Quality::Sharp, ThumbPath::UpscaledJpeg, 256, kOrange},
-        {"fast mode uses jpeg", true, false, true, 256, psdbhai::Quality::Fast, ThumbPath::UpscaledJpeg, 256, kOrange},
-        {"BGR thumbnail (1033) colors", true, true, true, 32, psdbhai::Quality::Sharp, ThumbPath::EmbeddedJpeg, 32, kOrange},
-        {"no jpeg uses composite at small size", false, false, true, 32, psdbhai::Quality::Sharp, ThumbPath::Composite, 32, red},
+        {"small icon uses embedded jpeg", true, false, true, 48, psdglance::Quality::Sharp, ThumbPath::EmbeddedJpeg, 48, kOrange},
+        {"large icon uses composite", true, false, true, 256, psdglance::Quality::Sharp, ThumbPath::Composite, 64, red},
+        {"no real composite falls back to upscaled jpeg", true, false, false, 256, psdglance::Quality::Sharp, ThumbPath::UpscaledJpeg, 256, kOrange},
+        {"fast mode uses jpeg", true, false, true, 256, psdglance::Quality::Fast, ThumbPath::UpscaledJpeg, 256, kOrange},
+        {"BGR thumbnail (1033) colors", true, true, true, 32, psdglance::Quality::Sharp, ThumbPath::EmbeddedJpeg, 32, kOrange},
+        {"no jpeg uses composite at small size", false, false, true, 32, psdglance::Quality::Sharp, ThumbPath::Composite, 32, red},
     };
     for (const Case& c : cases) {
         Spec s;
@@ -570,15 +570,15 @@ void TestSourceSelection() {
         Bytes file = MakePsd(s);
         psd::MemorySource src(file.data(), file.size());
         psd::Reader r(src);
-        psdbhai::ThumbRequest req;
+        psdglance::ThumbRequest req;
         req.cx = c.cx;
         req.quality = c.q;
         psd::Image img;
-        psdbhai::ThumbOutcome oc;
-        HRESULT hr = psdbhai::MakeThumbnail(r, req, img, &oc);
+        psdglance::ThumbOutcome oc;
+        HRESULT hr = psdglance::MakeThumbnail(r, req, img, &oc);
         CHECK(SUCCEEDED(hr), "%s: hr=0x%08lx", c.name, (unsigned long)hr);
         if (FAILED(hr)) continue;
-        CHECK(oc.path == c.expect, "%s: path %s", c.name, psdbhai::ThumbPathName(oc.path));
+        CHECK(oc.path == c.expect, "%s: path %s", c.name, psdglance::ThumbPathName(oc.path));
         CHECK(img.width == c.w, "%s: width %u, expected %u", c.name, img.width, c.w);
         Rgb got;
         int a;
@@ -592,8 +592,8 @@ void TestSourceSelection() {
     psd::MemorySource src(file.data(), file.size());
     psd::Reader r(src);
     psd::Image img;
-    psdbhai::ThumbRequest req;
-    CHECK(FAILED(psdbhai::MakeThumbnail(r, req, img)), "nothing usable must fail so Explorer shows the icon");
+    psdglance::ThumbRequest req;
+    CHECK(FAILED(psdglance::MakeThumbnail(r, req, img)), "nothing usable must fail so Explorer shows the icon");
 
     // HBITMAP conversion
     Spec s;
@@ -601,9 +601,9 @@ void TestSourceSelection() {
     psd::MemorySource src2(f2.data(), f2.size());
     psd::Reader r2(src2);
     psd::Image img2;
-    if (SUCCEEDED(psdbhai::MakeThumbnail(r2, req, img2))) {
+    if (SUCCEEDED(psdglance::MakeThumbnail(r2, req, img2))) {
         HBITMAP hbm = nullptr;
-        CHECK(SUCCEEDED(psdbhai::ImageToHBitmap(img2, &hbm)) && hbm, "ImageToHBitmap");
+        CHECK(SUCCEEDED(psdglance::ImageToHBitmap(img2, &hbm)) && hbm, "ImageToHBitmap");
         BITMAP bm = {};
         GetObjectW(hbm, sizeof(bm), &bm);
         CHECK(bm.bmWidth == 64 && bm.bmHeight == 48 && bm.bmBitsPixel == 32, "HBITMAP is 64x48x32");
@@ -684,11 +684,11 @@ void TestPackBits() {
 void RunThumbnail(const Bytes& file, uint32_t cx) {
     psd::MemorySource src(file.data(), file.size());
     psd::Reader r(src, 8192);
-    psdbhai::ThumbRequest req;
+    psdglance::ThumbRequest req;
     req.cx = cx;
     req.limits.timeBudgetMs = 2000;
     psd::Image img;
-    psdbhai::MakeThumbnail(r, req, img);
+    psdglance::MakeThumbnail(r, req, img);
 }
 
 void TestTruncation() {

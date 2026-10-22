@@ -1,10 +1,10 @@
-// PSDBhai.exe: turns thumbnails on/off per file type, picks the
+// PSDGlance.exe: turns thumbnails on/off per file type, picks the
 // quality mode and refreshes the thumbnail cache. The installer also calls
 // it with /register or /unregister so all registry logic lives in one place.
 //
-//   PSDBhai.exe                       open the settings window
-//   PSDBhai.exe /register user|machine
-//   PSDBhai.exe /unregister user|machine
+//   PSDGlance.exe                       open the settings window
+//   PSDGlance.exe /register user|machine
+//   PSDGlance.exe /unregister user|machine
 
 #include <windows.h>
 #include <commctrl.h>
@@ -17,7 +17,7 @@
 #include "../win/registration.h"
 #include "resource.h"
 
-using namespace psdbhai;
+using namespace psdglance;
 
 namespace {
 
@@ -68,17 +68,17 @@ void UpdateUi(HWND dlg) {
     const bool dllFound = FileExists(s.dllPath);
     wchar_t status[600];
     if (s.registered && !dllFound) {
-        StringCchPrintfW(status, 600, L"PSDBhai.dll is missing from %s. Reinstall PSDBhai.", s.dllPath);
+        StringCchPrintfW(status, 600, L"PSDGlance.dll is missing from %s. Reinstall PSDGlance.", s.dllPath);
     } else if (s.registered && !s.canWrite) {
         StringCchCopyW(status, 600,
-                       L"Installed for all users. To change file types, run PSDBhai as administrator.");
+                       L"Installed for all users. To change file types, run PSDGlance as administrator.");
     } else if (s.registered) {
         StringCchPrintfW(status, 600, L"Installed for %s. Open a folder of PSD files to see thumbnails.",
                          ScopeName(s.scope));
     } else if (dllFound) {
         StringCchCopyW(status, 600, L"Not turned on yet. Tick a file type to show thumbnails for this user.");
     } else {
-        StringCchCopyW(status, 600, L"PSDBhai.dll was not found next to this app. Reinstall PSDBhai.");
+        StringCchCopyW(status, 600, L"PSDGlance.dll was not found next to this app. Reinstall PSDGlance.");
     }
     SetDlgItemTextW(dlg, IDC_STATUS, status);
 
@@ -101,7 +101,7 @@ void OnToggle(HWND dlg, int control) {
     }
     if (st != ERROR_SUCCESS) {
         MessageBoxW(dlg,
-                    st == ERROR_ACCESS_DENIED ? L"Windows denied the change. Run PSDBhai as administrator."
+                    st == ERROR_ACCESS_DENIED ? L"Windows denied the change. Run PSDGlance as administrator."
                                               : L"The change could not be saved to the registry.",
                     kProductName, MB_ICONWARNING);
     }
@@ -277,7 +277,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     if (argv) LocalFree(argv);
 
     // Lets the installer ask the user to close this window before updating.
-    HANDLE running = CreateMutexW(nullptr, FALSE, L"PSDBhaiRunning");
+    HANDLE running = CreateMutexW(nullptr, FALSE, L"PSDGlanceRunning");
 
     INITCOMMONCONTROLSEX icc = {};
     icc.dwSize = sizeof(icc);

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-label="Before: every PSD shows the same icon. After PSDBhai: every PSD shows its real picture.">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-label="Before: every PSD shows the same icon. After PSDGlance: every PSD shows its real picture.">
   <defs>
     <linearGradient id="t1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F97316"/><stop offset="1" stop-color="#DB2777"/></linearGradient>
     <linearGradient id="t2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#2563EB"/></linearGradient>
@@ -31,7 +31,7 @@
   <path d="M606 164l20 16-20 16" fill="none" stroke="#38BDF8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- After -->
-  <text x="910" y="56" text-anchor="middle" class="head" fill="#7DD3FC">After PSDBhai</text>
+  <text x="910" y="56" text-anchor="middle" class="head" fill="#7DD3FC">After PSDGlance</text>
   <g>
     <g transform="translate(670 90)">
       <rect width="150" height="130" rx="10" fill="url(#t1)"/>

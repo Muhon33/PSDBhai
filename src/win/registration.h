@@ -5,7 +5,7 @@
 
 #include <windows.h>
 
-namespace psdbhai {
+namespace psdglance {
 
 enum class Scope { User, Machine };
 
@@ -30,4 +30,4 @@ bool IsClassRegistered(Scope scope, wchar_t* dllPath = nullptr, DWORD dllPathCha
 // Tells Explorer that file associations changed so it picks up the handler.
 void NotifyShell();
 
-}  // namespace psdbhai
+}  // namespace psdglance

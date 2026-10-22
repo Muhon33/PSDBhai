@@ -1,4 +1,4 @@
-LIBRARY PSDBhai
+LIBRARY PSDGlance
 EXPORTS
     DllGetClassObject PRIVATE
     DllCanUnloadNow PRIVATE

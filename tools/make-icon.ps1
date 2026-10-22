@@ -1,4 +1,4 @@
-# Builds every app image from the PSDBhai logo (res\brand\logo-1024.png):
+# Builds every app image from the PSDGlance logo (res\brand\logo-1024.png):
 #   res\app.ico                 app/installer icon, PNG-compressed entries 16-256 px
 #   res\wizard-small-*.bmp      installer header images (100/150/200% DPI)
 #   res\readme\logo.png         256 px logo for the README

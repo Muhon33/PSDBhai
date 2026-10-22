@@ -1,6 +1,6 @@
 #include "sources.h"
 
-namespace psdbhai {
+namespace psdglance {
 
 StreamSource::StreamSource(IStream* stream) : stream_(stream) {
     stream_->AddRef();
@@ -66,4 +66,4 @@ bool FileSource::ReadAt(uint64_t offset, void* buf, size_t len, size_t* got) {
     return true;
 }
 
-}  // namespace psdbhai
+}  // namespace psdglance

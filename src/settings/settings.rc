@@ -7,7 +7,7 @@ IDI_APP ICON "../../res/app.ico"
 
 IDD_MAIN DIALOGEX 0, 0, 292, 224
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
-CAPTION "PSDBhai"
+CAPTION "PSDGlance"
 FONT 9, "Segoe UI", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Explorer thumbnails", -1, 7, 7, 278, 70
@@ -20,7 +20,7 @@ BEGIN
     AUTORADIOBUTTON "Fast: use only Photoshop's small built-in preview", IDC_FAST, 16, 112, 260, 10
 
     GROUPBOX        "Thumbnail cache", -1, 7, 135, 278, 58
-    LTEXT           "Windows keeps thumbnails it made earlier. Refresh after changing quality or updating PSDBhai. File Explorer windows will close and reopen.", -1, 16, 148, 262, 24
+    LTEXT           "Windows keeps thumbnails it made earlier. Refresh after changing quality or updating PSDGlance. File Explorer windows will close and reopen.", -1, 16, 148, 262, 24
     PUSHBUTTON      "Refresh thumbnails...", IDC_REFRESH, 16, 174, 92, 14
 
     LTEXT           "", IDC_VERSION, 7, 204, 200, 10
@@ -28,8 +28,8 @@ BEGIN
 END
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION PSDBHAI_VERSION_NUM
-PRODUCTVERSION PSDBHAI_VERSION_NUM
+FILEVERSION PSDGLANCE_VERSION_NUM
+PRODUCTVERSION PSDGLANCE_VERSION_NUM
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS VOS_NT_WINDOWS32
@@ -40,14 +40,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "PSDBhai"
-            VALUE "FileDescription", "PSDBhai"
-            VALUE "FileVersion", PSDBHAI_VERSION_STR
-            VALUE "InternalName", "PSDBhai"
+            VALUE "CompanyName", "PSDGlance"
+            VALUE "FileDescription", "PSDGlance"
+            VALUE "FileVersion", PSDGLANCE_VERSION_STR
+            VALUE "InternalName", "PSDGlance"
             VALUE "LegalCopyright", "Copyright (c) 2026 Muhon33. MIT License."
-            VALUE "OriginalFilename", "PSDBhai.exe"
-            VALUE "ProductName", "PSDBhai"
-            VALUE "ProductVersion", PSDBHAI_VERSION_STR
+            VALUE "OriginalFilename", "PSDGlance.exe"
+            VALUE "ProductName", "PSDGlance"
+            VALUE "ProductVersion", PSDGLANCE_VERSION_STR
         END
     END
     BLOCK "VarFileInfo"

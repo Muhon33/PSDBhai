@@ -1,4 +1,4 @@
-// PSDBhai.dll: the Explorer thumbnail handler (COM in-process server).
+// PSDGlance.dll: the Explorer thumbnail handler (COM in-process server).
 // Implements only IInitializeWithStream, so Windows runs it in an isolated
 // COM surrogate (dllhost.exe): a bad file can never take Explorer down.
 
@@ -62,15 +62,15 @@ public:
         *alpha = WTSAT_UNKNOWN;
         if (!stream_) return E_UNEXPECTED;
 
-        psdbhai::StreamSource source(stream_);
+        psdglance::StreamSource source(stream_);
         psd::Reader reader(source);
-        psdbhai::ThumbRequest request;
+        psdglance::ThumbRequest request;
         request.cx = cx;
-        request.quality = psdbhai::ReadQuality();
+        request.quality = psdglance::ReadQuality();
         psd::Image image;
-        HRESULT hr = psdbhai::MakeThumbnail(reader, request, image);
+        HRESULT hr = psdglance::MakeThumbnail(reader, request, image);
         if (FAILED(hr)) return hr;  // Explorer falls back to the normal icon
-        hr = psdbhai::ImageToHBitmap(image, bitmap);
+        hr = psdglance::ImageToHBitmap(image, bitmap);
         if (SUCCEEDED(hr)) *alpha = image.hasAlpha ? WTSAT_ARGB : WTSAT_RGB;
         return hr;
     }
@@ -120,9 +120,9 @@ public:
 
 ClassFactory g_factory;
 
-psdbhai::Scope RegistrationScope() {
+psdglance::Scope RegistrationScope() {
     // regsvr32 from an elevated prompt installs for everyone; otherwise per user.
-    return psdbhai::IsProcessElevated() ? psdbhai::Scope::Machine : psdbhai::Scope::User;
+    return psdglance::IsProcessElevated() ? psdglance::Scope::Machine : psdglance::Scope::User;
 }
 
 }  // namespace
@@ -138,7 +138,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID) {
 STDAPI DllGetClassObject(REFCLSID clsid, REFIID riid, void** ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
-    if (clsid != psdbhai::kClsidThumbProvider) return CLASS_E_CLASSNOTAVAILABLE;
+    if (clsid != psdglance::kClsidThumbProvider) return CLASS_E_CLASSNOTAVAILABLE;
     return g_factory.QueryInterface(riid, ppv);
 }
 
@@ -148,8 +148,8 @@ STDAPI DllRegisterServer() {
     wchar_t path[MAX_PATH];
     DWORD n = GetModuleFileNameW(g_module, path, MAX_PATH);
     if (n == 0 || n >= MAX_PATH) return E_FAIL;
-    LSTATUS st = psdbhai::Register(RegistrationScope(), path, true, true);
+    LSTATUS st = psdglance::Register(RegistrationScope(), path, true, true);
     return HRESULT_FROM_WIN32(st);
 }
 
-STDAPI DllUnregisterServer() { return HRESULT_FROM_WIN32(psdbhai::Unregister(RegistrationScope())); }
+STDAPI DllUnregisterServer() { return HRESULT_FROM_WIN32(psdglance::Unregister(RegistrationScope())); }

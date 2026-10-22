@@ -7,7 +7,7 @@
 
 #include "../core/reader.h"
 
-namespace psdbhai {
+namespace psdglance {
 
 class StreamSource final : public psd::Source {
 public:
@@ -34,4 +34,4 @@ private:
     uint64_t size_ = 0;
 };
 
-}  // namespace psdbhai
+}  // namespace psdglance

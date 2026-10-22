@@ -1,11 +1,11 @@
-PSDBhai - third-party notices
+PSDGlance - third-party notices
 ================================
 
-PSDBhai is licensed under the MIT License (see LICENSE.txt). Its own code
+PSDGlance is licensed under the MIT License (see LICENSE.txt). Its own code
 uses no third-party libraries. The binaries are built with llvm-mingw and are
 statically linked against the runtime libraries listed below.
 
-Photoshop is a registered trademark of Adobe Inc. PSDBhai is an independent
+Photoshop is a registered trademark of Adobe Inc. PSDGlance is an independent
 project and is not affiliated with or endorsed by Adobe.
 
 

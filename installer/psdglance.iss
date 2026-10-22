@@ -1,9 +1,9 @@
-; PSDBhai installer (Inno Setup 6). Build with: build.ps1 -Installer
+; PSDGlance installer (Inno Setup 6). Build with: build.ps1 -Installer
 ; One setup.exe for x64 and ARM64. Installs for the current user without
 ; admin rights and without questions: License > Install > Finish.
-; IT admins can install for all users with:  PSDBhai-Setup.exe /ALLUSERS
+; IT admins can install for all users with:  PSDGlance-Setup.exe /ALLUSERS
 
-#define AppName "PSDBhai"
+#define AppName "PSDGlance"
 #ifndef AppVersion
   #error Build with build.ps1 -Installer, which passes AppVersion from the VERSION file.
 #endif
@@ -13,11 +13,12 @@ AppId={{FB537C37-5FEF-444B-94AB-B4CC2A90B425}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
-AppPublisher=PSDBhai
+AppPublisher=PSDGlance
 AppComments=Shows thumbnails for Photoshop PSD and PSB files in File Explorer.
 AppCopyright=Copyright (c) 2026 Muhon33. MIT License.
-DefaultDirName={autopf}\PSDBhai
-; Version 1.0.0 was called "PSD Thumbs" and shares this AppId; never reuse its folder.
+DefaultDirName={autopf}\PSDGlance
+; Earlier builds were called "PSD Thumbs" and "PSDBhai" and share this AppId;
+; never reuse their folders.
 UsePreviousAppDir=no
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
@@ -32,16 +33,16 @@ DisableDirPage=yes
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
 OutputDir=..\dist
-OutputBaseFilename=PSDBhai-Setup-{#AppVersion}
+OutputBaseFilename=PSDGlance-Setup-{#AppVersion}
 SetupIconFile=..\res\app.ico
-UninstallDisplayIcon={app}\PSDBhai.exe
+UninstallDisplayIcon={app}\PSDGlance.exe
 UninstallDisplayName={#AppName}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 WizardSizePercent=100
 ; Ask to close the settings app if it is open during an update or uninstall.
-AppMutex=PSDBhaiRunning
+AppMutex=PSDGlanceRunning
 ; The DLL can be held by the thumbnail surrogate (dllhost.exe); let Restart Manager close it.
 CloseApplications=yes
 RestartApplications=no
@@ -50,7 +51,7 @@ VersionInfoTextVersion={#AppVersion}
 VersionInfoProductName={#AppName}
 VersionInfoProductVersion={#AppVersion}.0
 VersionInfoProductTextVersion={#AppVersion}
-VersionInfoCompany=PSDBhai
+VersionInfoCompany=PSDGlance
 VersionInfoDescription={#AppName} Setup
 VersionInfoCopyright=Copyright (c) 2026 Muhon33
 #ifdef Sign
@@ -62,28 +63,30 @@ SignedUninstaller=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-FinishedHeadingLabel=PSDBhai is ready
+FinishedHeadingLabel=PSDGlance is ready
 FinishedLabelNoIcons=Open any folder with PSD or PSB files and choose Medium, Large or Extra large icons to see the previews.
-FinishedLabel=Open any folder with PSD or PSB files and choose Medium, Large or Extra large icons to see the previews.%n%nPSDBhai is in the Start menu.
+FinishedLabel=Open any folder with PSD or PSB files and choose Medium, Large or Extra large icons to see the previews.%n%nPSDGlance is in the Start menu.
 
 [Files]
-Source: "..\bin\arm64\PSDBhai.dll"; DestDir: "{app}"; Check: IsArm64; Flags: ignoreversion
-Source: "..\bin\arm64\PSDBhai.exe"; DestDir: "{app}"; Check: IsArm64; Flags: ignoreversion
-Source: "..\bin\x64\PSDBhai.dll"; DestDir: "{app}"; Check: not IsArm64; Flags: ignoreversion
-Source: "..\bin\x64\PSDBhai.exe"; DestDir: "{app}"; Check: not IsArm64; Flags: ignoreversion
+Source: "..\bin\arm64\PSDGlance.dll"; DestDir: "{app}"; Check: IsArm64; Flags: ignoreversion
+Source: "..\bin\arm64\PSDGlance.exe"; DestDir: "{app}"; Check: IsArm64; Flags: ignoreversion
+Source: "..\bin\x64\PSDGlance.dll"; DestDir: "{app}"; Check: not IsArm64; Flags: ignoreversion
+Source: "..\bin\x64\PSDGlance.exe"; DestDir: "{app}"; Check: not IsArm64; Flags: ignoreversion
 Source: "..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignoreversion
 Source: "..\THIRD-PARTY-NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [InstallDelete]
-; Remove the files and shortcut of the earlier "PSD Thumbs" build that this replaces.
+; Remove the files and shortcuts of the earlier "PSD Thumbs" and "PSDBhai" builds this replaces.
 Type: filesandordirs; Name: "{autopf}\PSD Thumbs"
 Type: files; Name: "{autoprograms}\PSD Thumbs Settings.lnk"
+Type: filesandordirs; Name: "{autopf}\PSDBhai"
+Type: files; Name: "{autoprograms}\PSDBhai.lnk"
 
 [Icons]
-Name: "{autoprograms}\PSDBhai"; Filename: "{app}\PSDBhai.exe"
+Name: "{autoprograms}\PSDGlance"; Filename: "{app}\PSDGlance.exe"
 
 [Run]
-Filename: "{app}\PSDBhai.exe"; Description: "Open PSDBhai settings"; Flags: postinstall nowait skipifsilent unchecked
+Filename: "{app}\PSDGlance.exe"; Description: "Open PSDGlance settings"; Flags: postinstall nowait skipifsilent unchecked
 
 [Code]
 function RegScope(): String;
@@ -91,19 +94,29 @@ begin
   if IsAdminInstallMode then Result := 'machine' else Result := 'user';
 end;
 
-// Carries over handler backups from the "PSD Thumbs" settings key, then removes it.
-procedure MigrateOldSettings();
+// Carries over settings from an earlier name's key (handler backups and the
+// user's quality choice), then removes that key.
+procedure MigrateKey(OldKey: String);
 var
   Root: Integer;
   Value: String;
+  Quality: Cardinal;
 begin
   if IsAdminInstallMode then Root := HKLM else Root := HKCU;
-  if RegQueryStringValue(Root, 'Software\PSD Thumbs', 'PreviousHandler.psd', Value) then
-    RegWriteStringValue(Root, 'Software\PSDBhai', 'PreviousHandler.psd', Value);
-  if RegQueryStringValue(Root, 'Software\PSD Thumbs', 'PreviousHandler.psb', Value) then
-    RegWriteStringValue(Root, 'Software\PSDBhai', 'PreviousHandler.psb', Value);
-  RegDeleteKeyIncludingSubkeys(Root, 'Software\PSD Thumbs');
-  RegDeleteKeyIncludingSubkeys(HKCU, 'Software\PSD Thumbs');
+  if RegQueryStringValue(Root, OldKey, 'PreviousHandler.psd', Value) then
+    RegWriteStringValue(Root, 'Software\PSDGlance', 'PreviousHandler.psd', Value);
+  if RegQueryStringValue(Root, OldKey, 'PreviousHandler.psb', Value) then
+    RegWriteStringValue(Root, 'Software\PSDGlance', 'PreviousHandler.psb', Value);
+  if RegQueryDWordValue(HKCU, OldKey, 'Quality', Quality) then
+    RegWriteDWordValue(HKCU, 'Software\PSDGlance', 'Quality', Quality);
+  RegDeleteKeyIncludingSubkeys(Root, OldKey);
+  RegDeleteKeyIncludingSubkeys(HKCU, OldKey);
+end;
+
+procedure MigrateOldSettings();
+begin
+  MigrateKey('Software\PSD Thumbs');
+  MigrateKey('Software\PSDBhai');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -114,10 +127,10 @@ begin
     MigrateOldSettings();
   if CurStep = ssPostInstall then
   begin
-    if not Exec(ExpandConstant('{app}\PSDBhai.exe'), '/register ' + RegScope(), '', SW_HIDE,
+    if not Exec(ExpandConstant('{app}\PSDGlance.exe'), '/register ' + RegScope(), '', SW_HIDE,
                 ewWaitUntilTerminated, Code) or (Code <> 0) then
-      SuppressibleMsgBox('PSDBhai could not turn on thumbnails (code ' + IntToStr(Code) +
-                         '). Open PSDBhai to try again.', mbError, MB_OK, IDOK);
+      SuppressibleMsgBox('PSDGlance could not turn on thumbnails (code ' + IntToStr(Code) +
+                         '). Open PSDGlance to try again.', mbError, MB_OK, IDOK);
   end;
 end;
 
@@ -127,6 +140,6 @@ var
 begin
   // Runs before files are removed: take the handler out of the registry first.
   if CurUninstallStep = usUninstall then
-    Exec(ExpandConstant('{app}\PSDBhai.exe'), '/unregister ' + RegScope(), '', SW_HIDE,
+    Exec(ExpandConstant('{app}\PSDGlance.exe'), '/unregister ' + RegScope(), '', SW_HIDE,
          ewWaitUntilTerminated, Code);
 end;

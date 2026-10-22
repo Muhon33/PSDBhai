@@ -1,6 +1,6 @@
 #include "config.h"
 
-namespace psdbhai {
+namespace psdglance {
 
 Quality ReadQuality() {
     DWORD value = 0, size = sizeof(value);
@@ -15,4 +15,4 @@ bool WriteQuality(Quality quality) {
                            sizeof(value)) == ERROR_SUCCESS;
 }
 
-}  // namespace psdbhai
+}  // namespace psdglance

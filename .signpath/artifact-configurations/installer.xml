@@ -6,7 +6,7 @@
     <parameter name="version" required="true" />
   </parameters>
   <zip-file>
-    <pe-file path="PSDBhai-Setup-${version}.exe" product-name="PSDBhai" product-version="${version}">
+    <pe-file path="PSDGlance-Setup-${version}.exe" product-name="PSDGlance" product-version="${version}">
       <authenticode-sign />
     </pe-file>
   </zip-file>

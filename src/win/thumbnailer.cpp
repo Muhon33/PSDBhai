@@ -5,7 +5,7 @@
 
 #include <cstring>
 
-namespace psdbhai {
+namespace psdglance {
 
 namespace {
 
@@ -175,4 +175,4 @@ HRESULT MakeThumbnail(psd::Reader& reader, const ThumbRequest& request, psd::Ima
     return E_FAIL;
 }
 
-}  // namespace psdbhai
+}  // namespace psdglance
