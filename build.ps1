@@ -1,0 +1,122 @@
+# Builds PSDBhai with llvm-mingw (clang) for x64 and ARM64.
+#
+#   .\build.ps1                         # DLL, settings app and CLI for x64 + arm64
+#   .\build.ps1 -Tests                  # also build and run the test suite (x64)
+#   .\build.ps1 -Tests -Sanitize        # tests under AddressSanitizer + UBSan
+#   .\build.ps1 -Installer              # also build the Inno Setup installer
+#   .\build.ps1 -Toolchain C:\llvm-mingw
+#   .\build.ps1 -Installer -SignCommand 'signtool sign /fd sha256 /tr http://time.certum.pl /td sha256 /a {file}'
+#                                       # sign the DLLs, settings app, installer and uninstaller
+#
+# Output: bin\x64\, bin\arm64\, dist\ (installer)
+param(
+    [string]$Toolchain = $env:LLVM_MINGW,
+    [string[]]$Arch = @('x64', 'arm64'),
+    [switch]$Tests,
+    [switch]$Sanitize,
+    [int]$FuzzIterations = 20000,
+    [switch]$Installer,
+    [string]$SignCommand  # {file} is replaced with the file to sign
+)
+$ErrorActionPreference = 'Stop'
+$root = $PSScriptRoot
+if (-not $Toolchain) {
+    $Toolchain = Get-ChildItem (Join-Path $root '..\tools\llvm-mingw-x') -Directory -ErrorAction SilentlyContinue |
+        Select-Object -First 1 -ExpandProperty FullName
+}
+if (-not $Toolchain -or -not (Test-Path (Join-Path $Toolchain 'bin'))) {
+    throw "llvm-mingw not found. Pass -Toolchain or set LLVM_MINGW."
+}
+$bin = Join-Path $Toolchain 'bin'
+
+$triples = @{ x64 = 'x86_64-w64-mingw32'; arm64 = 'aarch64-w64-mingw32' }
+$cxxFlags = @('-std=c++17', '-O2', '-Wall', '-Wextra', '-fno-exceptions', '-fno-rtti',
+    '-DUNICODE', '-D_UNICODE', '-D_WIN32_WINNT=0x0A00', '-DWINVER=0x0A00', '-DNOMINMAX',
+    '-ffunction-sections', '-fdata-sections')
+# Static runtime: no VC++/libc++ DLLs to install. -s strips symbols.
+$linkFlags = @('-static', '-s', '-Wl,--gc-sections')
+$core = @('src\core\reader.cpp', 'src\core\codecs.cpp', 'src\core\psd.cpp')
+$win = @('src\win\config.cpp', 'src\win\sources.cpp', 'src\win\thumbnailer.cpp', 'src\win\registration.cpp')
+$winLibs = @('-lole32', '-luuid', '-lshlwapi', '-lwindowscodecs', '-ladvapi32', '-lgdi32', '-lshell32', '-luser32')
+
+function Invoke-Tool([string]$Exe, [string[]]$ToolArgs) {
+    # Compiler warnings go to stderr; judge success by the exit code only.
+    $ErrorActionPreference = 'Continue'
+    & $Exe @ToolArgs 2>&1 | ForEach-Object { Write-Host "$_" }
+    if ($LASTEXITCODE -ne 0) { throw "$(Split-Path $Exe -Leaf) failed with exit code $LASTEXITCODE" }
+}
+
+function Invoke-Sign([string]$File) {
+    $ErrorActionPreference = 'Continue'
+    cmd.exe /c ($SignCommand.Replace('{file}', "`"$File`"")) 2>&1 | ForEach-Object { Write-Host "$_" }
+    if ($LASTEXITCODE -ne 0) { throw "Signing failed for $File" }
+}
+
+Push-Location $root
+try {
+    foreach ($a in $Arch) {
+        $triple = $triples[$a]
+        if (-not $triple) { throw "Unknown arch '$a' (use x64 or arm64)" }
+        $cxx = Join-Path $bin "$triple-clang++.exe"
+        $rc = Join-Path $bin "$triple-windres.exe"
+        $out = Join-Path $root "bin\$a"
+        $obj = Join-Path $root "obj\$a"
+        New-Item -ItemType Directory -Force $out, $obj | Out-Null
+        Write-Host "== $a" -ForegroundColor Cyan
+
+        Invoke-Tool $rc @('src\shellext\dll.rc', '-O', 'coff', '-o', "$obj\dll.res.o")
+        Invoke-Tool $rc @('-I', 'src\settings', 'src\settings\settings.rc', '-O', 'coff', '-o', "$obj\settings.res.o")
+
+        Invoke-Tool $cxx ($cxxFlags + $linkFlags + @('-shared', '-o', "$out\PSDBhai.dll") + $core + $win +
+            @('src\shellext\dll.cpp', 'src\shellext\psdbhai.def', "$obj\dll.res.o") + $winLibs)
+        Invoke-Tool $cxx ($cxxFlags + $linkFlags + @('-municode', '-mwindows', '-o', "$out\PSDBhai.exe",
+            'src\settings\main.cpp', 'src\win\config.cpp', 'src\win\registration.cpp', "$obj\settings.res.o",
+            '-lcomctl32') + $winLibs)
+        Invoke-Tool $cxx ($cxxFlags + $linkFlags + @('-municode', '-o', "$out\psdbhai-cli.exe") + $core + $win +
+            @('src\cli\main.cpp') + $winLibs)
+
+        if ($SignCommand) {
+            Invoke-Sign "$out\PSDBhai.dll"
+            Invoke-Sign "$out\PSDBhai.exe"
+        }
+        Get-ChildItem $out -File | ForEach-Object { '{0,-24} {1,8:N0} bytes' -f $_.Name, $_.Length }
+    }
+
+    if ($Tests) {
+        $cxx = Join-Path $bin 'x86_64-w64-mingw32-clang++.exe'
+        $testOut = Join-Path $root 'bin\tests'
+        New-Item -ItemType Directory -Force $testOut | Out-Null
+        # Tests use the standard library freely, so exceptions stay on here.
+        $testFlags = @('-std=c++17', '-Wall', '-Wextra', '-DUNICODE', '-D_UNICODE', '-D_WIN32_WINNT=0x0A00', '-DNOMINMAX', '-municode')
+        if ($Sanitize) {
+            # AddressSanitizer + UBSan need the dynamic runtime DLL from the toolchain.
+            $testFlags += @('-O1', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=undefined', '-fno-omit-frame-pointer')
+            $env:PATH = (Join-Path $Toolchain 'x86_64-w64-mingw32\bin') + ";$env:PATH"
+        } else {
+            $testFlags += @('-O2', '-static')
+        }
+        Invoke-Tool $cxx ($testFlags + @('-o', "$testOut\psdbhai_tests.exe") + $core + $win + @('tests\tests.cpp') + $winLibs)
+        Write-Host "== tests$(if ($Sanitize) { ' (ASan + UBSan)' })" -ForegroundColor Cyan
+        # WIC prints libjpeg warnings to stderr for the fuzzed JPEGs; only the exit code matters.
+        Invoke-Tool "$testOut\psdbhai_tests.exe" @("$FuzzIterations")
+    }
+
+    if ($Installer) {
+        $iscc = @("$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe", "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe") |
+            Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $iscc) { throw "Inno Setup 6 (ISCC.exe) not found" }
+        Write-Host "== installer" -ForegroundColor Cyan
+        # The license page wraps text itself, so join each paragraph into one line.
+        $paragraphs = (Get-Content -Raw (Join-Path $root 'LICENSE')).Replace("`r`n", "`n").Trim() -split "`n\s*`n"
+        $license = ($paragraphs | ForEach-Object { ($_ -split "`n" | ForEach-Object { $_.Trim() }) -join ' ' }) -join "`r`n`r`n"
+        New-Item -ItemType Directory -Force (Join-Path $root 'obj') | Out-Null
+        [System.IO.File]::WriteAllText((Join-Path $root 'obj\license.txt'), $license + "`r`n")
+        $isccArgs = @('/Q')
+        if ($SignCommand) { $isccArgs += @('/DSign', "/Ssigntool=$($SignCommand.Replace('{file}', '$f'))") }
+        Invoke-Tool $iscc ($isccArgs + @('installer\psdbhai.iss'))
+        Get-ChildItem (Join-Path $root 'dist') -File | ForEach-Object { '{0,-36} {1,10:N0} bytes' -f $_.Name, $_.Length }
+    }
+}
+finally {
+    Pop-Location
+}

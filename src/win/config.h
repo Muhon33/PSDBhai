@@ -1,0 +1,31 @@
+#pragma once
+// Identity and per-user settings shared by the DLL, the settings app and the CLI.
+
+#include <windows.h>
+
+namespace psdbhai {
+
+// Never change these once released: the installer and registry depend on them.
+// {6CDE7511-0277-42B6-8728-CF41F2F2C147}
+inline constexpr CLSID kClsidThumbProvider = {
+    0x6cde7511, 0x0277, 0x42b6, {0x87, 0x28, 0xcf, 0x41, 0xf2, 0xf2, 0xc1, 0x47}};
+inline constexpr wchar_t kClsidString[] = L"{6CDE7511-0277-42B6-8728-CF41F2F2C147}";
+
+// Windows' fixed ShellEx key for IThumbnailProvider handlers.
+inline constexpr wchar_t kThumbnailHandlerKey[] = L"{E357FCCD-A995-4576-B01F-234630154E96}";
+
+inline constexpr wchar_t kProductName[] = L"PSDBhai";
+inline constexpr wchar_t kHandlerName[] = L"PSDBhai Thumbnail Provider";
+inline constexpr wchar_t kDllName[] = L"PSDBhai.dll";
+inline constexpr wchar_t kSettingsKey[] = L"Software\\PSDBhai";
+inline constexpr wchar_t kVersion[] = L"1.0.0";
+
+enum class Quality : DWORD {
+    Sharp = 0,  // composite for sizes above the embedded preview (default)
+    Fast = 1,   // embedded preview only, upscaled when needed
+};
+
+Quality ReadQuality();
+bool WriteQuality(Quality quality);
+
+}  // namespace psdbhai
