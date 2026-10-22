@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath artifact configuration "binaries": the four program files the
+     workflow uploads from bin\ (x64 and ARM64), signed before packaging. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file-set product-name="PSDBhai" product-version="${version}">
+      <include path="x64/PSDBhai.dll" />
+      <include path="x64/PSDBhai.exe" />
+      <include path="arm64/PSDBhai.dll" />
+      <include path="arm64/PSDBhai.exe" />
+      <for-each>
+        <authenticode-sign />
+      </for-each>
+    </pe-file-set>
+  </zip-file>
+</artifact-configuration>

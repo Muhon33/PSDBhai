@@ -8,11 +8,16 @@ Shows real thumbnails for Photoshop **.psd** and **.psb** files in Windows File 
 - Windows 10 and 11, on Intel/AMD (x64) and ARM64 PCs.
 - No network access, no telemetry.
 
+## Download
+
+Get **PSDBhai-Setup-x.y.z.exe** from the [latest release](https://github.com/Muhon33/PSDBhai/releases/latest). See the [code signing policy](#code-signing-policy).
+
 ## Install (3 clicks, no admin password)
 
-1. Double-click **PSDBhai-Setup-1.0.0.exe**.
-2. If Windows shows "Windows protected your PC", click **More info**, then **Run anyway**. This appears because the installer isn't code-signed yet; it is not a virus warning.
-3. Accept the license, then click **Install**, then **Finish**.
+1. Double-click **PSDBhai-Setup-x.y.z.exe**.
+2. Accept the license, then click **Install**, then **Finish**.
+
+Releases signed through SignPath show "PSDBhai" by "SignPath Foundation". Version 1.0.0 is not signed: if Windows shows "Windows protected your PC", click **More info**, then **Run anyway**.
 
 Open any folder with PSD files and choose View > Medium, Large or Extra large icons. If Explorer still shows the old icon for files it has seen before, open **PSDBhai** from the Start menu and click **Refresh thumbnails**.
 
@@ -50,8 +55,10 @@ Requirements:
 ```powershell
 .\build.ps1 -Toolchain C:\path\to\llvm-mingw            # bin\x64 and bin\arm64
 .\build.ps1 -Toolchain C:\path\to\llvm-mingw -Tests     # plus the test suite
-.\build.ps1 -Toolchain C:\path\to\llvm-mingw -Installer # plus dist\PSDBhai-Setup-1.0.0.exe
+.\build.ps1 -Toolchain C:\path\to\llvm-mingw -Installer # plus dist\PSDBhai-Setup-<version>.exe
 ```
+
+The version comes from the `VERSION` file; the build writes it into every binary and the installer.
 
 Alternatively, set `LLVM_MINGW` instead of passing `-Toolchain`. Everything links statically (`-static`), so the binaries depend only on DLLs that ship with Windows 10/11.
 
@@ -110,16 +117,27 @@ The quality setting is `HKCU\Software\PSDBhai\Quality` (0 = Sharp, 1 = Fast). If
 
 Pushing to `main` builds, tests and packages the installer on GitHub Actions (download it from the run's **Artifacts**). To publish a release:
 
-1. Bump the version in `src/win/config.h` (`kVersion`), `src/shellext/dll.rc`, `src/settings/settings.rc` and `installer/psdbhai.iss`.
-2. Commit, then `git tag v1.0.1` and `git push --tags`. The workflow attaches the installer to a GitHub Release.
+1. Change the version in the `VERSION` file (the only place it lives), for example to `1.0.1`, and commit.
+2. `git tag v1.0.1` and `git push origin v1.0.1`.
+3. Once SignPath is set up, approve the two signing requests (program files, then installer) in SignPath.
+4. The workflow publishes the GitHub Release with the installer attached.
 
-To sign locally once you have a code-signing certificate:
+How to set up signing: [docs/signing.md](docs/signing.md).
 
-```powershell
-.\build.ps1 -Installer -SignCommand 'signtool sign /fd sha256 /tr <timestamp-url> /td sha256 /a {file}'
-```
+## Code signing policy
 
-This signs both DLLs, the settings apps, the installer and the uninstaller.
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+Release builds are produced only by the [GitHub Actions workflow](.github/workflows/build.yml) from the source code in this repository, and every signing request is approved by hand.
+
+Team roles:
+
+- Committers and reviewers: [Muhon33](https://github.com/Muhon33)
+- Approvers: [Muhon33](https://github.com/Muhon33)
+
+### Privacy policy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. PSDBhai makes no network connections at all; it only reads the PSD/PSB files Windows asks it to show.
 
 ## License
 
@@ -129,7 +147,7 @@ Photoshop is a registered trademark of Adobe Inc. PSDBhai is an independent proj
 
 ## Known limits
 
-- **Not code-signed yet.** Until the installer is signed, Windows SmartScreen shows "Windows protected your PC" when it's downloaded, and Windows 11 PCs with Smart App Control turned on may block it. Microsoft Defender finds no threats in it.
+- **Version 1.0.0 is not code-signed.** Windows SmartScreen shows "Windows protected your PC" when it's downloaded, and Windows 11 PCs with Smart App Control turned on may block it. Microsoft Defender finds no threats in it. Signed releases fix this, though SmartScreen can still warn for a short time after a new release while it gathers reputation.
 - CMYK and Lab colors use simple conversions, not the file's ICC profile, so CMYK can look slightly different from Photoshop.
 - Files saved with both "Maximize Compatibility" and "Image Previews" off show the normal icon; layers are not rendered.
 - v1.1 (not built yet): Preview pane (Alt+P) and Details-view properties such as dimensions.

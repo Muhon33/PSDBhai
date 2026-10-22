@@ -1,8 +1,9 @@
 #include <windows.h>
+#include "version.h"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
+FILEVERSION PSDBHAI_VERSION_NUM
+PRODUCTVERSION PSDBHAI_VERSION_NUM
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS VOS_NT_WINDOWS32
@@ -15,11 +16,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "PSDBhai"
             VALUE "FileDescription", "PSDBhai - Explorer thumbnails for PSD and PSB files"
-            VALUE "FileVersion", "1.0.0"
+            VALUE "FileVersion", PSDBHAI_VERSION_STR
             VALUE "InternalName", "PSDBhai"
+            VALUE "LegalCopyright", "Copyright (c) 2026 Muhon33. MIT License."
             VALUE "OriginalFilename", "PSDBhai.dll"
             VALUE "ProductName", "PSDBhai"
-            VALUE "ProductVersion", "1.0.0"
+            VALUE "ProductVersion", PSDBHAI_VERSION_STR
         END
     END
     BLOCK "VarFileInfo"

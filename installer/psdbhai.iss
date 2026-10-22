@@ -5,7 +5,7 @@
 
 #define AppName "PSDBhai"
 #ifndef AppVersion
-  #define AppVersion "1.0.0"
+  #error Build with build.ps1 -Installer, which passes AppVersion from the VERSION file.
 #endif
 
 [Setup]
@@ -46,6 +46,11 @@ AppMutex=PSDBhaiRunning
 CloseApplications=yes
 RestartApplications=no
 VersionInfoVersion={#AppVersion}.0
+VersionInfoTextVersion={#AppVersion}
+VersionInfoProductName={#AppName}
+VersionInfoProductVersion={#AppVersion}.0
+VersionInfoProductTextVersion={#AppVersion}
+VersionInfoCompany=PSDBhai
 VersionInfoDescription={#AppName} Setup
 VersionInfoCopyright=Copyright (c) 2026 Muhon33
 #ifdef Sign

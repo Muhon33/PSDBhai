@@ -1,6 +1,10 @@
-# Builds x64 + ARM64, runs the test suite and packages the installer on every
-# push. Pushing a tag like v1.0.1 also publishes a GitHub Release with the
-# installer attached.
+# Builds x64 + ARM64, runs the tests and packages the installer on every push.
+#
+# Pushing a version tag (v1.2.3, matching the VERSION file) also publishes a
+# GitHub Release. Once SignPath is set up (repository variable
+# SIGNPATH_ORGANIZATION_ID and secret SIGNPATH_API_TOKEN, see docs/signing.md),
+# tagged builds are code-signed first: the program files, then the installer.
+# Each signing request waits for manual approval in SignPath.
 name: Build
 
 on:
@@ -11,7 +15,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # needed to publish releases for tags
+  contents: write  # publish releases for tags
+  actions: read    # lets SignPath verify which workflow run produced the files
 
 env:
   LLVM_MINGW_VERSION: '20261020'
@@ -20,24 +25,25 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Cache llvm-mingw
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: C:\llvm-mingw
-          key: llvm-mingw-${{ env.LLVM_MINGW_VERSION }}-ucrt-x86_64
+      - name: Read version
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          "VERSION=$version" >> $env:GITHUB_ENV
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME does not match VERSION ($version)"
+          }
 
       - name: Download llvm-mingw
-        if: steps.cache.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $name = "llvm-mingw-$env:LLVM_MINGW_VERSION-ucrt-x86_64"
           $zip = "$env:RUNNER_TEMP\llvm-mingw.zip"
           Invoke-WebRequest "https://github.com/mstorsjo/llvm-mingw/releases/download/$env:LLVM_MINGW_VERSION/$name.zip" -OutFile $zip
           tar -xf $zip -C C:\
-          Rename-Item "C:\$name" C:\llvm-mingw
+          "LLVM_MINGW=C:\$name" >> $env:GITHUB_ENV
 
       - name: Ensure Inno Setup 6
         shell: pwsh
@@ -46,19 +52,95 @@ jobs:
             choco install innosetup -y --no-progress
           }
 
-      - name: Build, test and package
+      - name: Build and test
         shell: pwsh
-        run: ./build.ps1 -Toolchain C:\llvm-mingw -Tests -Installer
+        run: ./build.ps1 -Tests
+
+      # ---- Code signing (version tags only, once SignPath is configured) ----
+
+      - name: Upload unsigned program files
+        id: upload-binaries
+        if: github.ref_type == 'tag' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: program-files-unsigned
+          path: |
+            bin/x64/PSDBhai.dll
+            bin/x64/PSDBhai.exe
+            bin/arm64/PSDBhai.dll
+            bin/arm64/PSDBhai.exe
+
+      - name: Sign program files (SignPath)
+        if: steps.upload-binaries.outcome == 'success'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdbhai' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: binaries
+          github-artifact-id: ${{ steps.upload-binaries.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 14400  # time to approve in SignPath
+          output-artifact-directory: bin  # signed files replace the unsigned ones
+          parameters: |
+            version: "${{ env.VERSION }}"
+
+      # ---- Installer ----
+
+      - name: Build installer
+        shell: pwsh
+        run: ./build.ps1 -Installer -PackageOnly
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        id: upload-installer
+        uses: actions/upload-artifact@v7
         with:
-          name: PSDBhai-Setup
-          path: dist/*.exe
+          name: PSDBhai-Setup-${{ env.VERSION }}${{ steps.upload-binaries.outcome == 'success' && '-unsigned' || '' }}
+          path: dist/PSDBhai-Setup-${{ env.VERSION }}.exe
 
-      - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+      - name: Sign installer (SignPath)
+        if: steps.upload-binaries.outcome == 'success'
+        uses: signpath/github-action-submit-signing-request@v3
         with:
-          files: dist/*.exe
-          generate_release_notes: true
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'psdbhai' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 14400
+          output-artifact-directory: dist-signed
+          parameters: |
+            version: "${{ env.VERSION }}"
+
+      - name: Upload signed installer
+        if: steps.upload-binaries.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: PSDBhai-Setup-${{ env.VERSION }}
+          path: dist-signed/PSDBhai-Setup-${{ env.VERSION }}.exe
+
+      # ---- Release ----
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $signed = Test-Path dist-signed
+          $setup = if ($signed) { "dist-signed\PSDBhai-Setup-$env:VERSION.exe" } else { "dist\PSDBhai-Setup-$env:VERSION.exe" }
+          $policy = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY#code-signing-policy"
+          $signing = if ($signed) { "Free code signing provided by SignPath.io, certificate by SignPath Foundation." } else { "This build is not code-signed." }
+          $notes = @"
+          Shows thumbnails for Photoshop PSD and PSB files in Windows File Explorer.
+
+          **Install:** download PSDBhai-Setup-$env:VERSION.exe below, double-click it, accept the license, click Install. No admin password needed. Windows 10 and 11, Intel/AMD and ARM PCs.
+
+          **Uninstall:** Settings > Apps > Installed apps > PSDBhai > Uninstall.
+
+          $signing [Code signing policy]($policy)
+          "@
+          gh release create $env:GITHUB_REF_NAME $setup --title "PSDBhai $env:VERSION" --notes $notes
