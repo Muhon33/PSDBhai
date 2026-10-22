@@ -143,4 +143,7 @@ jobs:
 
           $signing [Code signing policy]($policy)
           "@
-          gh release create $env:GITHUB_REF_NAME $setup --title "PSDBhai $env:VERSION" --notes $notes
+          # Also attach a copy with a fixed name, so this link always gets the newest version:
+          # https://github.com/<owner>/<repo>/releases/latest/download/PSDBhai-Setup.exe
+          Copy-Item $setup "$env:RUNNER_TEMP\PSDBhai-Setup.exe"
+          gh release create $env:GITHUB_REF_NAME $setup "$env:RUNNER_TEMP\PSDBhai-Setup.exe" --title "PSDBhai $env:VERSION" --notes $notes
