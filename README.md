@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Muhon33/PSDBhai/releases/latest"><img src="https://img.shields.io/github/v/release/Muhon33/PSDBhai?style=for-the-badge&label=version&color=2563EB" alt="Latest version"></a>
-  <a href="https://github.com/Muhon33/PSDBhai/releases"><img src="https://img.shields.io/github/downloads/Muhon33/PSDBhai/total?style=for-the-badge&label=downloads&color=7C3AED" alt="Downloads"></a>
+  <a href="https://github.com/Muhon33/Download-PSDBhai/releases/latest"><img src="https://img.shields.io/github/v/release/Muhon33/Download-PSDBhai?style=for-the-badge&label=version&color=2563EB" alt="Latest version"></a>
+  <a href="https://github.com/Muhon33/Download-PSDBhai/releases"><img src="https://img.shields.io/github/downloads/Muhon33/Download-PSDBhai/total?style=for-the-badge&label=downloads&color=7C3AED" alt="Downloads"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10 and 11">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22C55E?style=for-the-badge" alt="MIT license"></a>
 </p>
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Muhon33/PSDBhai/releases/latest/download/PSDBhai-Setup.exe">
+  <a href="https://github.com/Muhon33/Download-PSDBhai/releases/latest/download/PSDBhai-Setup.exe">
     <img src="res/readme/download-button.svg" alt="Download PSDBhai for Windows" width="380">
   </a>
 </p>
@@ -46,7 +46,7 @@
 
 ## 📥 Install in 3 clicks
 
-1. **Download** [PSDBhai-Setup.exe](https://github.com/Muhon33/PSDBhai/releases/latest/download/PSDBhai-Setup.exe).
+1. **Download** [PSDBhai-Setup.exe](https://github.com/Muhon33/Download-PSDBhai/releases/latest/download/PSDBhai-Setup.exe).
 2. **Double-click** it, tick **I accept the agreement**, then click **Install**.
 3. Click **Finish**, open any folder with PSD files, and switch the view to **Large icons**.
 
@@ -79,7 +79,7 @@ Open **PSDBhai** from the Start menu:
 
 - Install for all users (needs admin): `PSDBhai-Setup.exe /ALLUSERS`
 - Silent install: add `/VERYSILENT`
-- Every version is listed on the [Releases page](https://github.com/Muhon33/PSDBhai/releases).
+- Every version is listed on the [Releases page](https://github.com/Muhon33/Download-PSDBhai/releases).
 
 </details>
 
