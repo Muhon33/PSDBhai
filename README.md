@@ -38,7 +38,7 @@
 | :--- | :--- |
 | 🖼️ **Real previews** | See your designs as thumbnails in Medium, Large and Extra large icon views. |
 | ⚡ **Fast** | A 750 MB Photoshop file gets its thumbnail in about 12 milliseconds. |
-| 🪶 **Tiny** | The whole installer is about 2 MB. Nothing extra to install, Photoshop not needed. |
+| 🪶 **Tiny** | The whole installer is about 3 MB. Nothing extra to install, Photoshop not needed. |
 | 💤 **Invisible** | Nothing runs in the background. Windows uses it only when it needs a thumbnail. |
 | 🛡️ **Safe** | Runs in a protected Windows process, makes no internet connections, collects no data. |
 | 🎨 **Every PSD** | PSD and large PSB files, RGB, CMYK, Grayscale, Lab, 8/16/32-bit, transparency. |

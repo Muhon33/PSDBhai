@@ -1,77 +1,49 @@
-# Draws the PSDBhai app icon (a generic picture glyph) at several sizes
-# and packs them into res\app.ico as PNG-compressed entries.
-param([string]$Out = (Join-Path $PSScriptRoot '..\res\app.ico'))
+# Builds every app image from the PSDBhai logo (res\brand\logo-1024.png):
+#   res\app.ico                 app/installer icon, PNG-compressed entries 16-256 px
+#   res\wizard-small-*.bmp      installer header images (100/150/200% DPI)
+#   res\readme\logo.png         256 px logo for the README
+param([string]$Source = (Join-Path $PSScriptRoot '..\res\brand\logo-1024.png'))
 
 Add-Type -AssemblyName System.Drawing
+$res = Join-Path $PSScriptRoot '..\res'
+$logo = [System.Drawing.Image]::FromFile((Resolve-Path $Source))
 
-function New-RoundedPath([float]$x, [float]$y, [float]$w, [float]$h, [float]$r) {
-    $p = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $d = 2 * $r
-    $p.AddArc($x, $y, $d, $d, 180, 90)
-    $p.AddArc($x + $w - $d, $y, $d, $d, 270, 90)
-    $p.AddArc($x + $w - $d, $y + $h - $d, $d, $d, 0, 90)
-    $p.AddArc($x, $y + $h - $d, $d, $d, 90, 90)
-    $p.CloseFigure()
-    return $p
-}
-
-function New-IconPng([int]$s) {
+function New-Scaled([int]$s) {
     $bmp = New-Object System.Drawing.Bitmap($s, $s, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
     $g = [System.Drawing.Graphics]::FromImage($bmp)
-    $g.SmoothingMode = 'AntiAlias'
+    $g.InterpolationMode = 'HighQualityBicubic'
+    $g.PixelOffsetMode = 'HighQuality'
+    $g.SmoothingMode = 'HighQuality'
     $g.Clear([System.Drawing.Color]::Transparent)
-
-    # Background tile
-    $bg = New-RoundedPath 0 0 ($s - 1) ($s - 1) ($s * 0.22)
-    $g.FillPath((New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 19, 32, 58))), $bg)
-
-    # Picture card
-    $m = $s * 0.17
-    $cw = $s - 2 * $m
-    $card = New-RoundedPath $m ($m + $s * 0.04) $cw ($cw * 0.82) ($s * 0.08)
-    $g.FillPath((New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 236, 244, 255))), $card)
-    $g.SetClip($card)
-
-    $top = $m + $s * 0.04
-    $bottom = $top + $cw * 0.82
-    # Sun
-    $sun = $s * 0.13
-    $g.FillEllipse((New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 251, 191, 36))),
-        ($m + $cw * 0.62), ($top + $cw * 0.12), $sun, $sun)
-    # Mountains
-    $back = [System.Drawing.PointF[]]@(
-        (New-Object System.Drawing.PointF(($m + $cw * 0.30), $bottom)),
-        (New-Object System.Drawing.PointF(($m + $cw * 0.66), ($top + $cw * 0.36))),
-        (New-Object System.Drawing.PointF(($m + $cw * 1.05), $bottom)))
-    $g.FillPolygon((New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 14, 165, 233))), $back)
-    $front = [System.Drawing.PointF[]]@(
-        (New-Object System.Drawing.PointF(($m - $cw * 0.05), $bottom)),
-        (New-Object System.Drawing.PointF(($m + $cw * 0.32), ($top + $cw * 0.28))),
-        (New-Object System.Drawing.PointF(($m + $cw * 0.72), $bottom)))
-    $g.FillPolygon((New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255, 37, 99, 235))), $front)
-    $g.ResetClip()
+    $g.DrawImage($logo, 0, 0, $s, $s)
     $g.Dispose()
+    return $bmp
+}
 
+function Get-PngBytes($bmp) {
     $ms = New-Object System.IO.MemoryStream
     $bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
-    $bmp.Dispose()
     return , $ms.ToArray()
 }
 
-# Installer header images (32-bit BMP with alpha) for 100%, 150% and 200% DPI.
+# Installer header images
 foreach ($s in 55, 83, 110) {
-    $ms = New-Object System.IO.MemoryStream(, (New-IconPng $s))
-    $img = [System.Drawing.Bitmap]::FromStream($ms)
-    $bmpPath = Join-Path (Split-Path $Out) "wizard-small-$s.bmp"
-    $img.Save($bmpPath, [System.Drawing.Imaging.ImageFormat]::Bmp)
-    $img.Dispose()
+    $b = New-Scaled $s
+    $b.Save((Join-Path $res "wizard-small-$s.bmp"), [System.Drawing.Imaging.ImageFormat]::Bmp)
+    $b.Dispose()
 }
 
-$sizes = 16, 20, 24, 32, 40, 48, 64, 256
-$images = foreach ($s in $sizes) { , (New-IconPng $s) }
+# README logo
+New-Item -ItemType Directory -Force (Join-Path $res 'readme') | Out-Null
+$b = New-Scaled 256
+$b.Save((Join-Path $res 'readme\logo.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+$b.Dispose()
 
-New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
-$fs = [System.IO.File]::Create($Out)
+# Icon
+$sizes = 16, 20, 24, 32, 40, 48, 64, 256
+$images = foreach ($s in $sizes) { $b = New-Scaled $s; , (Get-PngBytes $b); $b.Dispose() }
+$out = Join-Path $res 'app.ico'
+$fs = [System.IO.File]::Create($out)
 $w = New-Object System.IO.BinaryWriter($fs)
 $w.Write([UInt16]0); $w.Write([UInt16]1); $w.Write([UInt16]$sizes.Count)
 $offset = 6 + 16 * $sizes.Count
@@ -84,4 +56,5 @@ for ($i = 0; $i -lt $sizes.Count; $i++) {
 }
 foreach ($img in $images) { $w.Write($img) }
 $w.Close()
-"Wrote $Out ($((Get-Item $Out).Length) bytes)"
+$logo.Dispose()
+"Wrote $out ($((Get-Item $out).Length) bytes), wizard images and README logo"
